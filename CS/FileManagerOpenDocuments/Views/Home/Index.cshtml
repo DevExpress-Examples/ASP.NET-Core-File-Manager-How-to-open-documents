@@ -1,0 +1,74 @@
+﻿@{
+    ViewData["Title"] = "File Manager - How to open documents";
+}
+<script>
+    function onSelectedFileOpened(args) {
+        let fileName = args.fileItem.name;
+        let provider = args.component.option("fileProvider");
+        provider.getItemContent([args.fileItem]).done(function (arrayBuffer) {
+            let extension = getFileItemExtension(fileName);
+            switch (extension) {
+                case "docx":
+                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.OpenXml, arrayBuffer);
+                    break;
+                case "txt":
+                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.PlainText, arrayBuffer);
+                    break;
+                case "rtf":
+                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.Rtf, arrayBuffer);
+                    break;
+                default:
+            }
+        });
+    }
+    function openDocInDialog(fileName, fileType, content) {
+        let popup = $("#dialogPopup").dxPopup("instance");
+        popup.option("title", fileName);
+        popup.show();
+        let base64Content = fromArrayBuffer(content);
+        richEdit.openDocument(base64Content, fileName, fileType);
+    }
+    function fromArrayBuffer(buffer) {
+        const binary = [];
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++)
+            binary.push(String.fromCharCode(bytes[i]));
+        return window.btoa(binary.join(''));
+    }
+    function getFileItemExtension(name) {
+        return name.split('.').pop();
+    }
+</script>
+
+@(Html.DevExtreme().FileManager()
+    .ID("fileManager")
+    .FileProvider(fileProvider => fileProvider
+        .Remote()
+        .Url(Url.Action("FileSystem", "FileManagerApi")))
+    .ItemView(v => v.Mode(FileManagerItemViewMode.Thumbnails))
+    .Permissions(permissions => permissions
+        .Create(false)
+        .Copy(false)
+        .Move(false)
+        .Remove(false)
+        .Rename(false)
+        .Upload(false)
+        .Download(true))
+    .OnSelectedFileOpened("onSelectedFileOpened")
+)
+
+@(Html.DevExtreme().Popup()
+    .ID("dialogPopup")
+    .ContentTemplate(@<text>
+    @(Html.DevExpress().RichEdit("richEdit")
+       .Width("100%")
+       .Height(800)
+       .ConfirmOnLosingChanges(c => c.Enabled(false))
+       .Views(v => v.ViewType(DevExpress.AspNetCore.RichEdit.ViewType.Simple))
+    )
+    </text>)
+.CloseOnOutsideClick(true)
+)
+
+

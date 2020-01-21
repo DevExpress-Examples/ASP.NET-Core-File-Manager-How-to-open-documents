@@ -1,0 +1,6 @@
+﻿@(Html.DevExpress().RichEdit("richEdit")
+    .Width("100%")
+    .Height(800)
+    .ConfirmOnLosingChanges(c => c.Enabled(false))
+    .Views(v => v.ViewType(DevExpress.AspNetCore.RichEdit.ViewType.Simple))
+)

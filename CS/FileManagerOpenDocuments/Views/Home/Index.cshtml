@@ -1,45 +1,8 @@
 ﻿@{
     ViewData["Title"] = "File Manager - How to open documents";
 }
-<script>
-    function onSelectedFileOpened(args) {
-        let fileName = args.fileItem.name;
-        let provider = args.component.option("fileProvider");
-        provider.getItemContent([args.fileItem]).done(function (arrayBuffer) {
-            let extension = getFileItemExtension(fileName);
-            switch (extension) {
-                case "docx":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.OpenXml, arrayBuffer);
-                    break;
-                case "txt":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.PlainText, arrayBuffer);
-                    break;
-                case "rtf":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.Rtf, arrayBuffer);
-                    break;
-                default:
-            }
-        });
-    }
-    function openDocInDialog(fileName, fileType, content) {
-        let popup = $("#dialogPopup").dxPopup("instance");
-        popup.option("title", fileName);
-        popup.show();
-        let base64Content = fromArrayBuffer(content);
-        richEdit.openDocument(base64Content, fileName, fileType);
-    }
-    function fromArrayBuffer(buffer) {
-        const binary = [];
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++)
-            binary.push(String.fromCharCode(bytes[i]));
-        return window.btoa(binary.join(''));
-    }
-    function getFileItemExtension(name) {
-        return name.split('.').pop();
-    }
-</script>
+<h1>File Manager - How to open documents</h1>
+
 
 @(Html.DevExtreme().FileManager()
     .ID("fileManager")
@@ -60,15 +23,73 @@
 
 @(Html.DevExtreme().Popup()
     .ID("dialogPopup")
-    .ContentTemplate(@<text>
-    @(Html.DevExpress().RichEdit("richEdit")
-       .Width("100%")
-       .Height(800)
-       .ConfirmOnLosingChanges(c => c.Enabled(false))
-       .Views(v => v.ViewType(DevExpress.AspNetCore.RichEdit.ViewType.Simple))
-    )
-    </text>)
+    .Width("1300px")
+    .Height("900px")
+    .Shading(true)
 .CloseOnOutsideClick(true)
 )
 
-
+@using (Html.DevExtreme().NamedTemplate("wordTemplate")) {
+    await Html.RenderPartialAsync("RichEditPartial");
+}
+@using (Html.DevExtreme().NamedTemplate("excelTemplate")) {
+    ViewContext.Writer.Write("<div id='excel'>");
+    await Html.RenderPartialAsync("SpreadsheetPartial");
+    ViewContext.Writer.Write("</div>");
+}
+<script>
+    function onSelectedFileOpened(args) {
+            let extension = getFileItemExtension(args.fileItem.name);
+            switch (extension) {
+                case "xlsx":
+                    openExcelInDialog(args.fileItem);
+                    break;
+                case "docx":
+                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.OpenXml);
+                    break;
+                case "txt":
+                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.PlainText);
+                    break;
+                case "rtf":
+                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.Rtf);
+                    break;
+                default:
+            }
+    }
+    function openWordInDialog(fileItem, fileType) {
+        let provider = $("#fileManager").dxFileManager("instance").option("fileProvider");
+        provider.getItemContent([fileItem]).done(function (arrayBuffer) {
+            openDialog(fileItem, "wordTemplate");
+            let base64Content = fromArrayBuffer(arrayBuffer);
+            richEdit.openDocument(base64Content, fileItem.name, fileType);
+        });
+    }
+     function openExcelInDialog(fileItem) {
+        openDialog(fileItem, "excelTemplate");
+        $.ajax({
+                type: 'POST',
+                url: '@Url.Action("OpenDocInSpreadsheet", "Home")',
+                data: { filePath: fileItem.key},
+                success: function (result) {
+                    $("#excel").html(result);
+                }
+        });
+    }
+    function fromArrayBuffer(buffer) {
+        const binary = [];
+        const bytes = new Uint8Array(buffer);
+        const len = bytes.byteLength;
+        for (let i = 0; i < len; i++)
+            binary.push(String.fromCharCode(bytes[i]));
+        return window.btoa(binary.join(''));
+    }
+    function getFileItemExtension(name) {
+        return name.split('.').pop();
+    }
+    function openDialog(fileItem, type) {
+        let popup = $("#dialogPopup").dxPopup("instance");
+        popup.option("title", fileItem.name);
+        popup.option("contentTemplate", $("#"+ type));
+        popup.show();
+    }
+</script>

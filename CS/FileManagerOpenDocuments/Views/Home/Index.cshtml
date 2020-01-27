@@ -25,98 +25,95 @@
     .ID("dialogPopup")
     .Width("1300px")
     .Height("900px")
+    .DeferRendering(false)
     .Shading(true)
 .CloseOnOutsideClick(true)
 )
 
-@using (Html.DevExtreme().NamedTemplate("wordTemplate")) {
+@using (Html.DevExtreme().NamedTemplate("text")) {
     await Html.RenderPartialAsync("RichEditPartial");
 }
 
-@using (Html.DevExtreme().NamedTemplate("excelTemplate")) {
-    ViewContext.Writer.Write("<div id='excel'>");
+@using (Html.DevExtreme().NamedTemplate("excel")) {
+    ViewContext.Writer.Write("<div id='excelContainer'>");
     await Html.RenderPartialAsync("SpreadsheetPartial");
     ViewContext.Writer.Write("</div>");
 }
 
-@using (Html.DevExtreme().NamedTemplate("diagramTemplate")) {
+@using (Html.DevExtreme().NamedTemplate("diagram")) {
     await Html.RenderPartialAsync("DiagramPartial");
 }
-@using (Html.DevExtreme().NamedTemplate("imageTemplate")) {
+@using (Html.DevExtreme().NamedTemplate("image")) {
     <img id="imageViewer" />
 }
 <script>
     function onSelectedFileOpened(args) {
-            let extension = getFileItemExtension(args.fileItem.name);
-            switch (extension) {
-                case "xlsx":
-                    openExcelInDialog(args.fileItem);
-                    break;
-                case "docx":
-                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.OpenXml);
-                    break;
-                case "txt":
-                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.PlainText);
-                    break;
-                case "rtf":
-                    openWordInDialog(args.fileItem, DevExpress.RichEdit.DocumentFormat.Rtf);
-                    break;
-                case "json":
-                    openDiagramInDialog(args.fileItem);
-                    break;
-                case "jpg":
-                    openImageViewerInDialog(args.fileItem);
-                    break;
-                default:
-            }
+        openFileInDialog(args.fileItem);
     }
-    function openWordInDialog(fileItem, fileType) {
-        let provider = $("#fileManager").dxFileManager("instance").option("fileProvider");
-        provider.getItemContent([fileItem]).done(function (arrayBuffer) {
-            openDialog(fileItem, "wordTemplate");
-            let base64Content = fromArrayBuffer(arrayBuffer);
-            richEdit.openDocument(base64Content, fileItem.name, fileType);
-        });
-    }
-     function openExcelInDialog(fileItem) {
-        openDialog(fileItem, "excelTemplate");
-        $.ajax({
-                type: 'POST',
-                url: '@Url.Action("OpenDocInSpreadsheet", "Home")',
-                data: { filePath: fileItem.key},
-                success: function (result) {
-                    $("#excel").html(result);
-                }
-        });
-    }
-    function openDiagramInDialog(fileItem) {
-        openDialog(fileItem, "diagramTemplate");
-        let provider = $("#fileManager").dxFileManager("instance").option("fileProvider");
-        provider.getItemContent([fileItem]).done(function (arrayBuffer) {
-            let enc = new TextDecoder("utf-8");
-            let data = enc.decode(arrayBuffer);
-            $("#diagram").dxDiagram("instance").import(data);
-        });
-    }
-    function openImageViewerInDialog(fileItem) {
-        openDialog(fileItem, "imageTemplate");
-        $("#imageViewer").attr("src", fileItem.dataItem.url);
-    }
-    function fromArrayBuffer(buffer) {
-        const binary = [];
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++)
-            binary.push(String.fromCharCode(bytes[i]));
-        return window.btoa(binary.join(''));
-    }
-    function getFileItemExtension(name) {
-        return name.split('.').pop();
-    }
-    function openDialog(fileItem, type) {
+    function openFileInDialog(fileItem) {
+        let extension = fileItem.name.split('.').pop();
+        let fileManager = $("#fileManager").dxFileManager("instance");
         let popup = $("#dialogPopup").dxPopup("instance");
-        popup.option("title", fileItem.name);
-        popup.option("contentTemplate", $("#"+ type));
+        switch (extension) {
+            case "xlsx":
+                showPopup(popup, fileItem.name, "#excel");
+                FileLoader.loadSpreadsheet("#excelContainer", '@Url.Action("OpenDocInSpreadsheet", "Home")', fileItem);
+                break;
+            case "docx":
+                showPopup(popup, fileItem.name, "#text");
+                FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.OpenXml);
+            case "txt":
+                showPopup(popup, fileItem.name, "#text");
+                FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.PlainText);
+            case "rtf":
+                showPopup(popup, fileItem.name, "#text");
+                FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.Rtf);
+                break;
+            case "json":
+                showPopup(popup, fileItem.name, "#diagram");
+                FileLoader.loadDiagram("#diagramControl", fileManager, fileItem);
+                break;
+            case "jpg":
+                showPopup(popup, fileItem.name, "#image");
+                FileLoader.loadImage("#imageViewer", fileItem);
+                break;
+            default:
+        }
+
+    }
+    function showPopup(popup, title, templateSelector) {
+        popup.option("title", title);
+        popup.option("contentTemplate", $(templateSelector));
         popup.show();
+    }
+
+    class FileLoader {
+        static loadSpreadsheet(spreadsheetSelector, url, fileItem) {
+            $.post(url, { filePath: fileItem.key }, function (data) { $(spreadsheetSelector).html(data); });
+        }
+        static loadRichEdit(richEditControl, fileManager, fileItem, documentFormat) {
+            fileManager.option("fileProvider").getItemContent([fileItem]).done(function (arrayBuffer) {
+                let base64Content = _fromArrayBufferToBase64(arrayBuffer);
+                richEditControl.openDocument(base64Content, fileItem.name, documentFormat);
+            });
+            function _fromArrayBufferToBase64(buffer) {
+                const binary = [];
+                const bytes = new Uint8Array(buffer);
+                const len = bytes.byteLength;
+                for (let i = 0; i < len; i++)
+                    binary.push(String.fromCharCode(bytes[i]));
+                return window.btoa(binary.join(''));
+            }
+        }
+        static loadDiagram(diagramSelector, fileManager, fileItem) {
+            fileManager.option("fileProvider").getItemContent([fileItem]).done(function (arrayBuffer) {
+                let enc = new TextDecoder("utf-8");
+                let data = enc.decode(arrayBuffer);
+                $(diagramSelector).dxDiagram("instance").import(data);
+            });
+        }
+        static loadImage(imageSelector, fileItem) {
+            $(imageSelector).attr("src", fileItem.dataItem.url);
+        }
     }
 </script>

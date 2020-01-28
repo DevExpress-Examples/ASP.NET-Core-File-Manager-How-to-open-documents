@@ -1,0 +1,10 @@
+﻿@model T845880.Controllers.DocumentModel
+@(Html.DevExpress()
+   .Spreadsheet("spreadsheet")
+   .Ribbon(r => r.Visible(false))
+   .ReadOnly(true)
+   .Width("100%")
+   .Height(800)
+   .ConfirmOnLosingChanges(c => c.Enabled(false))
+   .Open(Model?.DocumentID, DevExpress.Spreadsheet.DocumentFormat.Xlsx, () => { return Model?.FileBytes; })
+   .DocumentRequestHandlerUrl(Url.Action("DxDocRequest", "Home")))

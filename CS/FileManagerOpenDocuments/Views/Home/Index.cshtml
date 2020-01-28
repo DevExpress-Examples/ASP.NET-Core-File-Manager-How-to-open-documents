@@ -1,52 +1,22 @@
 ﻿@{
     ViewData["Title"] = "File Manager - How to open documents";
 }
-<script>
-    function onSelectedFileOpened(args) {
-        let fileName = args.fileItem.name;
-        let provider = args.component.option("fileProvider");
-        provider.getItemContent([args.fileItem]).done(function (arrayBuffer) {
-            let extension = getFileItemExtension(fileName);
-            switch (extension) {
-                case "docx":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.OpenXml, arrayBuffer);
-                    break;
-                case "txt":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.PlainText, arrayBuffer);
-                    break;
-                case "rtf":
-                    openDocInDialog(fileName, DevExpress.RichEdit.DocumentFormat.Rtf, arrayBuffer);
-                    break;
-                default:
-            }
-        });
-    }
-    function openDocInDialog(fileName, fileType, content) {
-        let popup = $("#dialogPopup").dxPopup("instance");
-        popup.option("title", fileName);
-        popup.show();
-        let base64Content = fromArrayBuffer(content);
-        richEdit.openDocument(base64Content, fileName, fileType);
-    }
-    function fromArrayBuffer(buffer) {
-        const binary = [];
-        const bytes = new Uint8Array(buffer);
-        const len = bytes.byteLength;
-        for (let i = 0; i < len; i++)
-            binary.push(String.fromCharCode(bytes[i]));
-        return window.btoa(binary.join(''));
-    }
-    function getFileItemExtension(name) {
-        return name.split('.').pop();
-    }
-</script>
+<h1>File Manager - How to open documents</h1>
 
+<style>
+    #imageViewer {
+        display: block;
+        margin: auto;
+    }
+</style>
 @(Html.DevExtreme().FileManager()
     .ID("fileManager")
     .FileProvider(fileProvider => fileProvider
         .Remote()
         .Url(Url.Action("FileSystem", "FileManagerApi")))
     .ItemView(v => v.Mode(FileManagerItemViewMode.Thumbnails))
+    .Width("100%")
+    .Height("900px")
     .Permissions(permissions => permissions
         .Create(false)
         .Copy(false)
@@ -55,20 +25,113 @@
         .Rename(false)
         .Upload(false)
         .Download(true))
+    .AllowedFileExtensions(new[] { ".xlsx", ".rtf", ".txt", ".docx", ".json", ".jpg" })
     .OnSelectedFileOpened("onSelectedFileOpened")
 )
-
 @(Html.DevExtreme().Popup()
     .ID("dialogPopup")
-    .ContentTemplate(@<text>
-    @(Html.DevExpress().RichEdit("richEdit")
-       .Width("100%")
-       .Height(800)
-       .ConfirmOnLosingChanges(c => c.Enabled(false))
-       .Views(v => v.ViewType(DevExpress.AspNetCore.RichEdit.ViewType.Simple))
-    )
-    </text>)
+    .Width("1300px")
+    .Height("900px")
+    .DeferRendering(false)
 .CloseOnOutsideClick(true)
 )
+@using (Html.DevExtreme().NamedTemplate("text")) {
+    await Html.RenderPartialAsync("RichEditPartial");
+}
 
+@using (Html.DevExtreme().NamedTemplate("excel")) {
+    ViewContext.Writer.Write("<div id='excelContainer'>");
+    await Html.RenderPartialAsync("SpreadsheetPartial");
+    ViewContext.Writer.Write("</div>");
+}
 
+@using (Html.DevExtreme().NamedTemplate("diagram")) {
+    await Html.RenderPartialAsync("DiagramPartial");
+}
+@using (Html.DevExtreme().NamedTemplate("image")) {
+    <img id="imageViewer" />
+}
+<script>
+ function onSelectedFileOpened(args) {
+    openFileInDialog(args.fileItem);
+ }
+
+function openFileInDialog(fileItem) {
+	var extension = fileItem.name.split('.').pop();
+	var fileManager = $("#fileManager").dxFileManager("instance");
+	var popup = $("#dialogPopup").dxPopup("instance");
+	switch (extension) {
+        case "xlsx":
+            showPopup(popup, fileItem.name, "#excel");
+            FileLoader.loadSpreadsheet("#excelContainer", '@Url.Action("OpenDocInSpreadsheet", "Home")', fileItem);
+            break;
+        case "docx":
+            showPopup(popup, fileItem.name, "#text");
+            FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.OpenXml);
+            break;
+        case "txt":
+            showPopup(popup, fileItem.name, "#text");
+            FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.PlainText);
+            break;
+        case "rtf":
+            showPopup(popup, fileItem.name, "#text");
+            FileLoader.loadRichEdit(richEditControl, fileManager, fileItem, DevExpress.RichEdit.DocumentFormat.Rtf);
+            break;
+        case "json":
+            showPopup(popup, fileItem.name, "#diagram");
+            FileLoader.loadDiagram("#diagramControl", fileManager, fileItem);
+            break;
+        case "jpg":
+            showPopup(popup, fileItem.name, "#image");
+            FileLoader.loadImage("#imageViewer", fileManager, fileItem);
+            break;
+        default:
+            console.log("No handler for this file type");
+            break;
+		}
+	}
+function showPopup(popup, title, templateSelector) {
+	  popup.option("title", title);
+	  popup.option("contentTemplate", $(templateSelector));
+	  popup.show();
+	}
+
+var FileLoader = function () {
+    function FileLoader() {}
+    FileLoader.loadSpreadsheet = function loadSpreadsheet(spreadsheetSelector, url, fileItem) {
+	    $.post(url, { filePath: fileItem.key }, function (data) {  $(spreadsheetSelector).html(data);  });
+	};
+
+    FileLoader.loadRichEdit = function loadRichEdit(richEditControl, fileManager, fileItem, documentFormat) {
+		fileManager.option("fileProvider").getItemContent([fileItem]).done(function (arrayBuffer) {
+			var base64Content = _fromArrayBufferToBase64(arrayBuffer);
+			richEditControl.openDocument(base64Content, fileItem.name, documentFormat);
+		});
+	};
+
+    FileLoader.loadDiagram = function loadDiagram(diagramSelector, fileManager, fileItem) {
+		fileManager.option("fileProvider").getItemContent([fileItem]).done(function (arrayBuffer) {
+			var enc = new TextDecoder("utf-8");
+			var data = enc.decode(arrayBuffer);
+			$(diagramSelector).dxDiagram("instance").import(data);
+		});
+    };
+
+    FileLoader.loadImage = function loadImage(imageSelector, fileManager, fileItem) {
+	    fileManager.option("fileProvider").getItemContent([fileItem]).done(function (arrayBuffer) {
+	        var base64Content = _fromArrayBufferToBase64(arrayBuffer);
+	        $(imageSelector).attr("src","data:image/jpg;base64," + base64Content);
+		});
+	};
+    function _fromArrayBufferToBase64(buffer) {
+        var binary = [];
+        var bytes = new Uint8Array(buffer);
+        var len = bytes.byteLength;
+        for (var i = 0; i < len; i++) {
+		    binary.push(String.fromCharCode(bytes[i]));
+		}
+		    return window.btoa(binary.join(''));
+	}
+	    return FileLoader;
+	}();
+</script>

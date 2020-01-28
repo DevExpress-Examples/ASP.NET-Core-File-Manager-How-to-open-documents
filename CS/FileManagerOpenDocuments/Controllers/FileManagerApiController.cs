@@ -25,11 +25,19 @@ namespace T845880.Controllers {
                 AllowRemove = true,
                 AllowRename = true,
                 AllowUpload = true,
-                AllowDownload = true
+                AllowDownload = true,
+                AllowedFileExtensions= new string[] {".xlsx", ".rtf", ".txt", ".docx", ".json", ".jpg" }
             };
+          
             var processor = new FileSystemCommandProcessor(config);
             var result = processor.Execute(command, arguments);
             return result.GetClientCommandResult();
+        }
+        string GetFileItemUrl(FileSystemInfo fileSystemItem) {
+            var relativeUrl = fileSystemItem.FullName
+                .Replace(HostingEnvironment.WebRootPath, "")
+                .Replace(Path.DirectorySeparatorChar, '/');
+            return $"{Request.Scheme}://{Request.Host}{Request.PathBase}{relativeUrl}";
         }
     }
 }

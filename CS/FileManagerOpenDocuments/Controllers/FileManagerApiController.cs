@@ -18,13 +18,7 @@ namespace T845880.Controllers {
         public object FileSystem(FileSystemCommand command, string arguments) {
             var config = new FileSystemConfiguration {
                 Request = Request,
-                FileSystemProvider = new DefaultFileProvider(
-                    Path.Combine(HostingEnvironment.WebRootPath, "SampleDocs"),
-                    (fileSystemItem, clientItem) => {
-                        if (!clientItem.IsDirectory)
-                            clientItem.CustomFields["url"] = GetFileItemUrl(fileSystemItem);
-                    }
-                ),
+                FileSystemProvider = new DefaultFileProvider(Path.Combine(HostingEnvironment.WebRootPath, "SampleDocs")),
                 AllowCopy = true,
                 AllowCreate = true,
                 AllowMove = true,

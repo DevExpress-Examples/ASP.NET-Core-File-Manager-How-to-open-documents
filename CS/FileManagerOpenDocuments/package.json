@@ -6,7 +6,7 @@
     "devextreme": "19.2.X",
     "devexpress-richedit": "19.2.X",
     "devexpress-aspnetcore-spreadsheet": "19.2.X",
-    "jquery": "3.4.X",
+    "jquery": "3.5.0",
     "bootstrap": "4.4.X",
     "devextreme-aspnet-data": "2.5.1"
   }

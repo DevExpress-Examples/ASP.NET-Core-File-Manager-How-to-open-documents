@@ -18,11 +18,11 @@ namespace T845880.Controllers {
         public object FileSystem(FileSystemCommand command, string arguments) {
             var config = new FileSystemConfiguration {
                 Request = Request,
-                FileSystemProvider = new DefaultFileProvider(Path.Combine(HostingEnvironment.WebRootPath, "SampleDocs")),
+                FileSystemProvider = new PhysicalFileSystemProvider(Path.Combine(HostingEnvironment.WebRootPath, "SampleDocs")),
                 AllowCopy = true,
                 AllowCreate = true,
                 AllowMove = true,
-                AllowRemove = true,
+                AllowDelete = true,
                 AllowRename = true,
                 AllowUpload = true,
                 AllowDownload = true,

@@ -60,7 +60,7 @@ This section describes how to open the most popular file types in different cont
 3) Use RichEdit's [openDocument](https://docs.devexpress.com/AspNetCore/js-DevExpress.RichEdit.RichEdit#js_devexpress_richedit_richedit_opendocument) method to open the selected file content. For this, convert the ArrayBuffer object returned by **getItemsContent** to the base64 string.
 ```js
     FileLoader.loadRichEdit = function loadRichEdit(richEditControl, fileManager, fileItem, documentFormat) {
-		fileManager.option("fileProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
+		fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
 			var base64Content = _fromArrayBufferToBase64(arrayBuffer);
 			richEditControl.openDocument(base64Content, fileItem.name, documentFormat);
 		});
@@ -106,10 +106,10 @@ FileLoader.loadSpreadsheet = function loadSpreadsheet(spreadsheetSelector, url, 
     await Html.RenderPartialAsync("DiagramPartial");
 }
 ```
-3) Use the **fileProvider.getItemsContent** method to get the selected file content and open it in Diagram using the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method:
+3) Use the **fileSystemProvider.getItemsContent** method to get the selected file content and open it in Diagram using the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method:
 ```js
 FileLoader.loadDiagram = function loadDiagram(diagramSelector, fileManager, fileItem) {
-		fileManager.option("fileProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
+		fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
 			var enc = new TextDecoder("utf-8");
 			var data = enc.decode(arrayBuffer);
 			$(diagramSelector).dxDiagram("instance").import(data);
@@ -125,10 +125,10 @@ FileLoader.loadDiagram = function loadDiagram(diagramSelector, fileManager, file
     <img id="imageViewer" />
 }
 ```
-2) Get the image content with the **fileProvider.getItemsContent** method. Convert the result to the base64 string and set the "src" attribute value to this string:
+2) Get the image content with the **fileSystemProvider.getItemsContent** method. Convert the result to the base64 string and set the "src" attribute value to this string:
 ```js
 FileLoader.loadImage = function loadImage(imageSelector, fileManager, fileItem) {
-	    fileManager.option("fileProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
+	    fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
 	        var base64Content = _fromArrayBufferToBase64(arrayBuffer);
 	        $(imageSelector).attr("src","data:image/jpg;base64," + base64Content);
 		});

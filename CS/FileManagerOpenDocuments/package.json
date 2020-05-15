@@ -3,11 +3,11 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "devextreme": "19.2.X",
-    "devexpress-richedit": "19.2.X",
-    "devexpress-aspnetcore-spreadsheet": "19.2.X",
-    "jquery": "3.5.0",
+    "devextreme": "20.1.X",
+    "devexpress-richedit": "20.1.X",
+    "devexpress-aspnetcore-spreadsheet": "20.1.X",
+    "jquery": "3.5.1",
     "bootstrap": "4.4.X",
-    "devextreme-aspnet-data": "2.5.1"
+    "devextreme-aspnet-data": "2.6.X"
   }
 }

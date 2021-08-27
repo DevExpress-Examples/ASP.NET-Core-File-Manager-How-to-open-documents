@@ -1,3 +1,8 @@
+<!-- default badges list -->
+![](https://img.shields.io/endpoint?url=https://codecentral.devexpress.com/api/v1/VersionRange/231054628/20.1.3%2B)
+[![](https://img.shields.io/badge/Open_in_DevExpress_Support_Center-FF7200?style=flat-square&logo=DevExpress&logoColor=white)](https://supportcenter.devexpress.com/ticket/details/T849071)
+[![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
+<!-- default badges end -->
 # ASP.NET Core File Manager - How to open different files in a popup dialog
 
 This example shows how to display documents in File Manager and open them in a popup dialog. The dialog opens Word documents (DOCX, RTF), Excel files (XLSX), Diagram data (JSON) and images.

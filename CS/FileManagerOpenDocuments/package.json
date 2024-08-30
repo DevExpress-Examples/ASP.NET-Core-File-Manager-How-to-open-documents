@@ -3,9 +3,9 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
-    "devextreme": "22.2.*-*",
-    "devexpress-richedit": "22.2.*-*",
-    "devexpress-aspnetcore-spreadsheet": "22.2.*-*",
+    "devextreme": "~24.2.1-alpha",
+    "devexpress-richedit": "~24.2.1-alpha",
+    "devexpress-aspnetcore-spreadsheet": "~24.2.1-alpha",
     "jquery": "3.5.1",
     "bootstrap": "4.4.X",
     "devextreme-aspnet-data": "2.9.X"

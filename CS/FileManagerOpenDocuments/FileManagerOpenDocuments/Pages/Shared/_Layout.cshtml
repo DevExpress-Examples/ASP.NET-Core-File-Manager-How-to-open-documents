@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>FileManagerOpenDocuments</title>
+    <link href="~/favicon.ico" rel="shortcut icon" type="image/x-icon" />
+
+    @* Uncomment to use the HtmlEditor control *@
+    @*<script src="~/js/devextreme/dx-quill.js"></script>*@
+
+    @* Uncomment to use the Gantt control *@
+    @*<link href="~/css/devextreme/dx-gantt.css" rel="stylesheet" />*@
+
+    @* Uncomment to use the Diagram control *@
+    <link href="~/css/devextreme/dx-diagram.css" rel="stylesheet" />
+
+    @* Custom theme with a color swatch *@
+    @* Docs: https://js.devexpress.com/DevExtreme/Guide/Themes_and_Styles/Predefined_Themes/#Color_Swatches *@
+    <link href="~/css/devextreme/theme.base.css" rel="stylesheet" />
+
+    <link rel="stylesheet" href="~/css/Site.css" />
+
+    @* Uncomment to use the Gantt control *@
+    @*<script src="~/js/devextreme/dx-gantt.js"></script>*@
+
+    @* Uncomment to use the Diagram control *@
+    <script src="~/js/devextreme/dx-diagram.js"></script>
+
+    <script src="~/js/devextreme/jquery.js"></script>
+
+    @* Localization: https://docs.devexpress.com/AspNetCore/400577 *@
+
+    @* Uncomment to enable client-side export *@
+    <script src="~/js/devextreme/jszip.js"></script>
+
+    <script src="~/js/devextreme/dx.all.js"></script>
+
+    @* Uncomment to provide geo-data for the VectorMap control *@
+    @* Docs: https://js.devexpress.com/DevExtreme/Guide/Widgets/VectorMap/Providing_Data/#Data_for_Areas *@
+    @*<script src="~/js/devextreme/vectormap-data/world.js"></script>*@
+
+    <script src="~/js/devextreme/aspnet/dx.aspnet.mvc.js"></script>
+    <script src="~/js/devextreme/aspnet/dx.aspnet.data.js"></script>
+
+    @* RichEdit and Spreadsheet resources *@
+    <link href="~/node_modules/devexpress-richedit/dist/dx.richedit.css" rel="stylesheet" />
+    <link href="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.css" rel="stylesheet" />
+    <script src="~/node_modules/devexpress-richedit/dist/dx.richedit.js"></script>
+    <script src="~/node_modules/devexpress-aspnetcore-spreadsheet/dist/dx-aspnetcore-spreadsheet.js"></script>
+</head>
+
+<body class="dx-viewport">
+    <div id="app-side-nav-outer-toolbar">
+        <div class="layout-header">
+            @(Html.DevExtreme().Toolbar()
+                .Items(items => {
+                    items.Add()
+                        .Widget(w => w
+                            .Button()
+                            .Icon("menu")
+                            .OnClick("FileManagerOpenDocuments.onMenuButtonClick")
+                        )
+                        .Location(ToolbarItemLocation.Before)
+                        .CssClass("menu-button");
+                    items.Add()
+                        .Html("<div>FileManagerOpenDocuments</div>")
+                        .Location(ToolbarItemLocation.Before)
+                        .CssClass("header-title");
+                })
+            )
+        </div>
+        <div class="layout-body layout-body-hidden">
+            @(Html.DevExtreme().Drawer()
+                .ID("layout-drawer")
+                .Position(DrawerPosition.Left)
+                .Opened(new JS("FileManagerOpenDocuments.restoreDrawerOpened()"))
+                .Content(@<text>
+                    <div id="layout-drawer-scrollview" class="with-footer">
+                        <div class="content">
+                            @RenderBody()
+                        </div>
+                        <div>
+                            <div class="content-footer">
+                                <div id="footer">
+                                    Copyright © 2000-2026 Developer Express Inc.
+                                    <br />
+                                    All trademarks or registered trademarks are property of their respective owners.
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </text>)
+                .Template(new TemplateName("navigation-menu"))
+            )
+        </div>
+    </div>
+
+    @using(Html.DevExtreme().NamedTemplate("navigation-menu")) {
+        <div class="menu-container dx-swatch-additional">
+
+            @functions{
+                string GetUrl(string pageName) => Url.Page(pageName);
+                string GetCurrentUrl() => Url.Page(ViewContext.RouteData.Values["page"].ToString());
+                bool IsCurrentUrl(string pageName) => GetUrl(pageName) == GetCurrentUrl();
+            }
+
+            @(Html.DevExtreme().TreeView()
+                .Items(items =>
+                {
+                    items.Add()
+                        .Text("Home")
+                        .Icon("home")
+                        .Option("path", GetUrl("/Index"))
+                        .Selected(IsCurrentUrl("/Index"));
+
+                    items.Add()
+                        .Text("About")
+                        .Icon("info")
+                        .Option("path", GetUrl("/About"))
+                        .Selected(IsCurrentUrl("/About"));
+                })
+                .ExpandEvent(TreeViewExpandEvent.Click)
+                .SelectionMode(NavSelectionMode.Single)
+                .SelectedExpr("selected")
+                .FocusStateEnabled(false)
+                .Width(250)
+                .OnItemClick("FileManagerOpenDocuments.onTreeViewItemClick")
+            )
+
+        </div>
+    }
+
+    <script>
+
+        var FileManagerOpenDocuments = (function() {
+
+            var DRAWER_OPENED_KEY = "FileManagerOpenDocuments-drawer-opened";
+
+            var breakpoints = {
+                xSmallMedia: window.matchMedia("(max-width: 599.99px)"),
+                smallMedia: window.matchMedia("(min-width: 600px) and (max-width: 959.99px)"),
+                mediumMedia: window.matchMedia("(min-width: 960px) and (max-width: 1279.99px)"),
+                largeMedia: window.matchMedia("(min-width: 1280px)")
+            };
+
+            function getDrawer() {
+                return $("#layout-drawer").dxDrawer("instance");
+            }
+
+            function restoreDrawerOpened() {
+                var isLarge = breakpoints.largeMedia.matches;
+                if(!isLarge)
+                    return false;
+
+                var state = sessionStorage.getItem(DRAWER_OPENED_KEY);
+                if(state === null)
+                    return isLarge;
+
+                return state === "true";
+            }
+
+            function saveDrawerOpened() {
+                sessionStorage.setItem(DRAWER_OPENED_KEY, getDrawer().option("opened"));
+            }
+
+            function updateDrawer() {
+                var isXSmall = breakpoints.xSmallMedia.matches,
+                    isLarge = breakpoints.largeMedia.matches;
+
+                getDrawer().option({
+                    openedStateMode: isLarge ? "shrink" : "overlap",
+                    revealMode: isXSmall ? "slide" : "expand",
+                    minSize: isXSmall ? 0 : 60,
+                    shading: !isLarge,
+                });
+            }
+
+            function init() {
+                $("#layout-drawer-scrollview").dxScrollView({ direction: "vertical" });
+
+                $.each(breakpoints, function(_, size) {
+                    size.addListener(function(e) {
+                        if(e.matches)
+                            updateDrawer();
+                    });
+                });
+
+                updateDrawer();
+
+                $('.layout-body').removeClass('layout-body-hidden');
+            }
+
+            function navigate(url, delay) {
+                if(url)
+                    setTimeout(function() { location.href = url }, delay);
+            }
+
+            function onMenuButtonClick() {
+                getDrawer().toggle();
+                saveDrawerOpened();
+            }
+
+            function onTreeViewItemClick(e) {
+                var drawer = getDrawer();
+                var savedOpened = restoreDrawerOpened();
+                var actualOpened = drawer.option("opened");
+
+                if(!actualOpened) {
+                    drawer.show();
+                } else {
+                    var willHide = !savedOpened || !breakpoints.largeMedia.matches;
+                    var willNavigate = !e.itemData.selected;
+
+                    if(willHide)
+                        drawer.hide();
+
+                    if(willNavigate)
+                        navigate(e.itemData.path, willHide ? 400 : 0);
+                }
+            }
+
+            return {
+                init: init,
+                restoreDrawerOpened: restoreDrawerOpened,
+                onMenuButtonClick: onMenuButtonClick,
+                onTreeViewItemClick: onTreeViewItemClick
+            };
+        })();
+
+        document.addEventListener("DOMContentLoaded", function documentReady() {
+            this.removeEventListener("DOMContentLoaded", documentReady);
+            FileManagerOpenDocuments.init();
+        });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,6 @@
+<Solution>
+  <Folder Name="/DevExtreme NuGet.config/">
+    <File Path="NuGet.config" />
+  </Folder>
+  <Project Path="FileManagerOpenDocuments/FileManagerOpenDocuments.csproj" />
+</Solution>

@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+    <PropertyGroup>
+        <TargetFramework>net10.0</TargetFramework>
+        <ImplicitUsings>enable</ImplicitUsings>
+    </PropertyGroup>
+
+    <ItemGroup>
+    <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="26.2.2-beta" />
+    <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="26.2.2-beta" />
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="6.0.0-beta" />
+    <PackageReference Include="DevExtreme.AspNet.Core" Version="26.2.2-beta" />
+    </ItemGroup>
+
+    <ProjectExtensions><VisualStudio><UserProperties TemplateFeatures="NETCORE" /></VisualStudio></ProjectExtensions>
+
+</Project>

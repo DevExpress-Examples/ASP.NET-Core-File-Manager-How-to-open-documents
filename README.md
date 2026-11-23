@@ -6,14 +6,14 @@
 <!-- default badges end -->
 # ASP.NET Core File Manager - Open Files in a Popup Dialog
 
-This example displays documents in File Manager and opens them in a popup dialog. The dialog opens Word documents (DOCX, RTF), Excel files (XLSX), Diagram data (JSON) and images.
+This example displays documents in File Manager and opens them in a popup dialog. The dialog opens Word documents (DOCX, RTF), Excel files (XLSX), Diagram data (JSON), and images.
 
-## Configure an ASP.NET Core project
+## Configure an ASP.NET Core Project
 
 If you start a new project, add required DevExpress libraries to your project as described in these help topics:
 
-* [Devextreme-Based Controls - Configure a non Visual Studio Project](https://docs.devexpress.com/AspNetCore/401027/devextreme-based-controls/get-started/configure-a-non-visual-studio-project)
-* [Devextreme-Based Controls - Configure a Visual Studio Project](https://docs.devexpress.com/AspNetCore/401026/devextreme-based-controls/get-started/configure-a-visual-studio-project)
+* [DevExtreme-Based Controls - Configure a non Visual Studio Project](https://docs.devexpress.com/AspNetCore/401027/devextreme-based-controls/get-started/configure-a-non-visual-studio-project)
+* [DevExtreme-Based Controls - Configure a Visual Studio Project](https://docs.devexpress.com/AspNetCore/401026/devextreme-based-controls/get-started/configure-a-visual-studio-project)
 * [Office-Inspired Controls - Get Started (Rich Edit)](https://docs.devexpress.com/AspNetCore/400321/rich-edit/get-started/net-core-application)
 * [Office-Inspired Controls - Get Started (Spreadsheet)](https://docs.devexpress.com/AspNetCore/400374/spreadsheet/configure-a-visual-studio-project)
 
@@ -27,7 +27,7 @@ If you start a new project, add required DevExpress libraries to your project as
 		.ID("dialogPopup"))
 	```
 
-1. To display different content based on the file type, create a `NamedTemplate` for each control that opens files. Refer to the following help topic for additional information: [Switching Templates On the Fly](https://js.devexpress.com/Documentation/Guide/Widgets/Popup/Customize_the_Appearance/Customize_the_Content/#Switching_Templates_On_the_Fly).
+1. Create a `NamedTemplate` for each control that opens files to display different content based on the file type. Refer to the following help topic for additional information: [Switching Templates On the Fly](https://js.devexpress.com/Documentation/Guide/Widgets/Popup/Customize_the_Appearance/Customize_the_Content/#Switching_Templates_On_the_Fly).
 
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("text")) {
@@ -35,7 +35,7 @@ If you start a new project, add required DevExpress libraries to your project as
 	}
 	``` 
 
-1. Handle the [FileManager.OnSelectedFileOpened](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxFileManager/Configuration/#onSelectedFileOpened) event to show your dialog and open selected file: 
+1. Handle the [FileManager.OnSelectedFileOpened](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxFileManager/Configuration/#onSelectedFileOpened) event to open your dialog with the selected file: 
 
 	```js
 	function onSelectedFileOpened(args) {
@@ -44,9 +44,7 @@ If you start a new project, add required DevExpress libraries to your project as
 	```
 
 ## Add Controls to Open Files
-
 In this example, the following controls display files:
-
 - [Rich Text Editor](#Rich-Text-Editor)
 - [Spreadsheet](#Spreadsheet)
 - [Diagram](#Diagram)
@@ -54,7 +52,7 @@ In this example, the following controls display files:
 
 ### Rich Text Editor
 
-1. The RichEdit component may have a lot of configuration options, so we recommend that you create it in a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
+1. The RichEdit component may expose many configuration options, so consider creating it in a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
 
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("text")) {
@@ -94,7 +92,7 @@ In this example, the following controls display files:
 		};
 	```
 
-1. In the Controller, obtain the Excel document from the file system and return it as Model:
+1. Obtain the Excel document from the file system in the _Controller_ and return it as a model:
 
 	```cs
 	return PartialView("SpreadsheetPartial", new DocumentModel {
@@ -121,7 +119,7 @@ In this example, the following controls display files:
 	}
 	```
 
-1. Call the **fileSystemProvider.getItemsContent** method to obtain the selected file content. Load content into the Diagram using the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method:
+1. Call the **fileSystemProvider.getItemsContent** method to obtain the selected file content. Call the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method to load content into the Diagram:
 
 	```js
 	FileLoader.loadDiagram = function loadDiagram(diagramSelector, fileManager, fileItem) {
@@ -143,7 +141,7 @@ In this example, the following controls display files:
 	}
 	```
 
-1. Call the **fileSystemProvider.getItemsContent** method to obtain the image content. Convert the result to the base64 string and assign this string to the `src` attribute:
+1. Call the **fileSystemProvider.getItemsContent** method to obtain the image content. Convert the result to a `base64` string and assign this string to the `src` attribute:
 
 	```js
 	FileLoader.loadImage = function loadImage(imageSelector, fileManager, fileItem) {

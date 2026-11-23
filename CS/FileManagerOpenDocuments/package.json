@@ -3,6 +3,9 @@
   "name": "asp.net",
   "private": true,
   "dependencies": {
+    "jquery": "3.5.1",
+    "bootstrap": "4.4.X",
+    "devextreme-aspnet-data": "5.1.X",
     "devextreme-dist": "26.2.2",
     "devexpress-richedit": "26.2.2",
     "devexpress-aspnetcore-spreadsheet": "26.2.2"

@@ -54,7 +54,7 @@ In this example, the following controls display files:
 
 ### Rich Text Editor
 
-1. The RichEdit component may have a lot of configuration options, so we recommend that you create it in a separate [Partial View](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
+1. The RichEdit component may have a lot of configuration options, so we recommend that you create it in a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
 
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("text")) {
@@ -75,7 +75,7 @@ In this example, the following controls display files:
 
 ### Spreadsheet
 
-1. Add a [Spreadsheet](https://docs.devexpress.com/AspNetCore/401031/office-inspired-controls/get-started/add-controls-to-a-project#spreadsheet) control to a separate [Partial View](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
+1. Add a [Spreadsheet](https://docs.devexpress.com/AspNetCore/401031/office-inspired-controls/get-started/add-controls-to-a-project#spreadsheet) control to a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
 
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("excel")) {
@@ -113,7 +113,7 @@ In this example, the following controls display files:
 
 ### Diagram
 
-1. Create a [Partial View](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml) that contains a Diagram. Render the Partial View within a `NamedTemplate`:
+1. Create a [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml) that contains a Diagram. Render the Partial View within a `NamedTemplate`:
 
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("diagram")) {
@@ -157,14 +157,14 @@ In this example, the following controls display files:
 
 ## Files to Review
 
-* [Index.cshtml](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Pages/Index.cshtml)
-* [RichEditPartial.cshtml](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml)
-* [SpreadsheetPartial.cshtml](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml)
-* [DiagramPartial.cshtml](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml)
-* [FileManagerApiController.cs](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Controllers/FileManagerApiController.cs)
-* [HomeController.cs](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Controllers/HomeController.cs)
-* [Program.cs](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Program.cs)
-* [_Layout.cshtml](./CS/FileManagerOpenDocuments/FileManagerOpenDocuments/Pages/Shared/_Layout.cshtml)
+* [Index.cshtml](./CS/FileManagerOpenDocuments/Pages/Index.cshtml)
+* [RichEditPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml)
+* [SpreadsheetPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml)
+* [DiagramPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml)
+* [FileManagerApiController.cs](./CS/FileManagerOpenDocuments/Controllers/FileManagerApiController.cs)
+* [HomeController.cs](./CS/FileManagerOpenDocuments/Controllers/HomeController.cs)
+* [Program.cs](./CS/FileManagerOpenDocuments/Program.cs)
+* [_Layout.cshtml](./CS/FileManagerOpenDocuments/Pages/Shared/_Layout.cshtml)
 <!-- feedback -->
 ## Does This Example Address Your Development Requirements/Objectives?
 

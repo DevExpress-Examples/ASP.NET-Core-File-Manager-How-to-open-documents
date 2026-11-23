@@ -6,10 +6,10 @@
     </PropertyGroup>
 
     <ItemGroup>
-    <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="26.2.2-beta" />
-    <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="26.2.2-beta" />
-    <PackageReference Include="DevExtreme.AspNet.Data" Version="6.0.0-beta" />
-    <PackageReference Include="DevExtreme.AspNet.Core" Version="26.2.2-beta" />
+    <PackageReference Include="DevExpress.AspNetCore.RichEdit" Version="26.2.*-*" />
+    <PackageReference Include="DevExpress.AspNetCore.Spreadsheet" Version="26.2.*-*" />
+    <PackageReference Include="DevExtreme.AspNet.Data" Version="6.0.0" />
+    <PackageReference Include="DevExtreme.AspNet.Core" Version="26.2.*-*" />
     </ItemGroup>
 
     <ProjectExtensions><VisualStudio><UserProperties TemplateFeatures="NETCORE" /></VisualStudio></ProjectExtensions>

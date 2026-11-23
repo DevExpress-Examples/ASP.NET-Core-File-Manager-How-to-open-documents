@@ -14,7 +14,8 @@ If you start a new project, add required DevExpress libraries to your project as
 
 * [Devextreme-Based Controls - Configure a non Visual Studio Project](https://docs.devexpress.com/AspNetCore/401027/devextreme-based-controls/get-started/configure-a-non-visual-studio-project)
 * [Devextreme-Based Controls - Configure a Visual Studio Project](https://docs.devexpress.com/AspNetCore/401026/devextreme-based-controls/get-started/configure-a-visual-studio-project)
-* [Office-Inspired Controls - Get Started](https://docs.devexpress.com/AspNetCore/400321/rich-edit/get-started/net-core-application)
+* [Office-Inspired Controls - Get Started (Rich Edit)](https://docs.devexpress.com/AspNetCore/400321/rich-edit/get-started/net-core-application)
+* [Office-Inspired Controls - Get Started (Spreadsheet)](https://docs.devexpress.com/AspNetCore/400374/spreadsheet/configure-a-visual-studio-project)
 
 ## Configure FileManager and Popup
 

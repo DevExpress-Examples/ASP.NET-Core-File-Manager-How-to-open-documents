@@ -1,4 +1,6 @@
-﻿@{
+﻿@page
+@model IndexModel
+@{
     ViewData["Title"] = "File Manager - How to open documents";
 }
 <h1>File Manager - How to open documents</h1>
@@ -33,7 +35,7 @@
     .Width("1300px")
     .Height("900px")
     .DeferRendering(false)
-.CloseOnOutsideClick(true)
+.HideOnOutsideClick(true)
 )
 @using (Html.DevExtreme().NamedTemplate("text")) {
     await Html.RenderPartialAsync("RichEditPartial");
@@ -41,7 +43,7 @@
 
 @using (Html.DevExtreme().NamedTemplate("excel")) {
     ViewContext.Writer.Write("<div id='excelContainer'>");
-    await Html.RenderPartialAsync("SpreadsheetPartial");
+    await Html.RenderPartialAsync("SpreadsheetPartial", new FileManagerOpenDocuments.Models.DocumentModel());
     ViewContext.Writer.Write("</div>");
 }
 

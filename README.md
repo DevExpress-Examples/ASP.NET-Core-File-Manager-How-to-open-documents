@@ -4,39 +4,48 @@
 [![](https://img.shields.io/badge/📖_How_to_use_DevExpress_Examples-e9f6fc?style=flat-square)](https://docs.devexpress.com/GeneralInformation/403183)
 [![](https://img.shields.io/badge/💬_Leave_Feedback-feecdd?style=flat-square)](#does-this-example-address-your-development-requirementsobjectives)
 <!-- default badges end -->
-# ASP.NET Core File Manager - How to open different files in a popup dialog
+# ASP.NET Core File Manager and Popup - Select Documents and Preview Content
 
-This example shows how to display documents in File Manager and open them in a popup dialog. The dialog opens Word documents (DOCX, RTF), Excel files (XLSX), Diagram data (JSON) and images.
+This example allows users to preview document content in a popup dialog. The dialog can display Word documents (DOCX, RTF), Excel files (XLSX), Diagram data (JSON), and images. Document selection is implemented using a File Manager.
 
-## Configure ASP.NET Core project
- If you start a new project, add required DevExpress libraries to your project as described in these tutorials:
+## Configure an ASP.NET Core Project
 
-* [Devextreme-Based Controls - Configure a non Visual Studio Project](https://docs.devexpress.com/AspNetCore/401027/devextreme-based-controls/get-started/configure-a-non-visual-studio-project)
-* [Office-Inspired Controls - Configure a Visual Studio Project](https://docs.devexpress.com/AspNetCore/400321/office-inspired-controls/get-started/configure-a-visual-studio-project)
+If you start a new project, add required DevExpress libraries to your project as described in the following help topics:
 
-> **Note** This project targets .NET Core 3.1. To run the project in Visual Studio 2017, change the target framework in the project settings.
-## Configure FileManager and Popup
-1) Add FileManager to your View. Connect FileManager to your file system like in the [Physical File System](https://demos.devexpress.com/ASPNetCore/Demo/FileManager/BindingToFileSystem/) demo. 
-2) Create a dialog with the [Popup](https://js.devexpress.com/Demos/WidgetsGallery/Demo/Popup/Overview/jQuery/Light/) component:
+* [DevExtreme-Based Controls - Configure a non-Visual Studio Project](https://docs.devexpress.com/AspNetCore/401027/devextreme-based-controls/get-started/configure-a-non-visual-studio-project)
+* [DevExtreme-Based Controls - Configure a Visual Studio Project](https://docs.devexpress.com/AspNetCore/401026/devextreme-based-controls/get-started/configure-a-visual-studio-project)
+* [Office-Inspired Controls - Get Started with the Rich Text Editor](https://docs.devexpress.com/AspNetCore/400321/rich-edit/get-started/net-core-application)
+* [Office-Inspired Controls - Get Started with the Spreadsheet](https://docs.devexpress.com/AspNetCore/400374/spreadsheet/configure-a-visual-studio-project)
+
+## Configure FileManager and Popup Controls
+
+1. Add a FileManager to a View. Connect the FileManager to your file system as described in the following demo: [Physical File System](https://demos.devexpress.com/ASPNetCore/Demo/FileManager/BindingToFileSystem/). 
+1. Create a dialog using a [Popup](https://js.devexpress.com/Demos/WidgetsGallery/Demo/Popup/Overview/jQuery/Light/) component:
+
 	```cs
 	@(Html.DevExtreme().Popup()
 		.ID("dialogPopup"))
 	```
-3) The dialog should display different content based on file type. To achieve this functionality, use the approach from the [Switching Templates On the Fly](https://js.devexpress.com/Documentation/Guide/Widgets/Popup/Customize_the_Appearance/Customize_the_Content/#Switching_Templates_On_the_Fly) article and create **NamedTemplate** for each control that opens files:
+
+1. Create a `NamedTemplate` for each file type users can preview. Refer to the following help topic for additional information: [Switching Templates on the Fly](https://js.devexpress.com/Documentation/Guide/Widgets/Popup/Customize_the_Appearance/Customize_the_Content/#Switching_Templates_On_the_Fly).
+
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("text")) {
 		//
 	}
 	``` 
-4) Handle the [FileManager.OnSelectedFileOpened](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxFileManager/Configuration/#onSelectedFileOpened) event. Show your dialog and open selected file in this event handler: 
+
+1. Handle the [FileManager.OnSelectedFileOpened](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxFileManager/Configuration/#onSelectedFileOpened) event to open your dialog and pass the selected file: 
+
 	```js
 	function onSelectedFileOpened(args) {
 		openFileInDialog(args.file);
 	}
 	```
-## Add controls for different file types
 
-This section describes how to open the most popular file types in different controls. It's not required to implement all of them. 
+## Add Controls that Display File Content
+
+In this example, the following controls display file content:
 
 - [Rich Text Editor](#Rich-Text-Editor)
 - [Spreadsheet](#Spreadsheet)
@@ -44,14 +53,17 @@ This section describes how to open the most popular file types in different cont
 - [Image](#Image)
 
 ### Rich Text Editor
-1) The RichEdit component may have a lot of configuration options, so it's better to create it in a separate Partial View: [RichEditPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/RichEditPartial.cshtml).
-2) Render this Partial View inside a corresponding NamedTemplate: 
+
+1. When using the RichEdit component, you may specify dozens of configuration options. In such instances, create a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
+
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("text")) {
 		await Html.RenderPartialAsync("RichEditPartial");
 	}
 	```
-3) Use RichEdit's [openDocument](https://docs.devexpress.com/AspNetCore/js-DevExpress.RichEdit.RichEdit#js_devexpress_richedit_richedit_opendocument) method to open the selected file content. For this, convert the ArrayBuffer object returned by **getItemsContent** to the base64 string.
+
+1. Call the [RichEdit.openDocument](https://docs.devexpress.com/AspNetCore/js-DevExpress.RichEdit.RichEdit#js_devexpress_richedit_richedit_opendocument) method to open the selected file:
+
 	```js
 		FileLoader.loadRichEdit = function loadRichEdit(richEditControl, fileManager, fileItem, documentFormat) {
 			fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
@@ -62,29 +74,37 @@ This section describes how to open the most popular file types in different cont
 	```
 
 ### Spreadsheet
-1) Add [Spreadsheet](https://docs.devexpress.com/AspNetCore/401031/office-inspired-controls/get-started/add-controls-to-a-project#spreadsheet) to a separate Partial View: [SpreadsheetPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/SpreadsheetPartial.cshtml). 
-2) Render the Partial View inside NamedTemplate:
+
+1. Add a [Spreadsheet](https://docs.devexpress.com/AspNetCore/401031/office-inspired-controls/get-started/add-controls-to-a-project#spreadsheet) control to a separate [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml). Render the Partial View within a `NamedTemplate`: 
+
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("excel")) {
 		ViewContext.Writer.Write("<div id='excelContainer'>");
-		await Html.RenderPartialAsync("SpreadsheetPartial");
+		await Html.RenderPartialAsync("SpreadsheetPartial", new FileManagerOpenDocuments.Models.DocumentModel());
 		ViewContext.Writer.Write("</div>");
 	}
 	```
-3) Spreadsheet can open files only on the server side. Thus, to open a file, it's necessary to trigger a request to the server and pass the selected item key as the request parameter. When the request is completed, update Spreadsheet's container element:
+
+1. Spreadsheet can open files only on the server. Trigger a request to the server and pass the selected item's key as the request parameter. When the request is completed, update the Spreadsheet container element:
+
 	```js
 	FileLoader.loadSpreadsheet = function loadSpreadsheet(spreadsheetSelector, url, fileItem) {
 			//spreadsheetSelector is parent div selector, i.e."#excelContainer"
 			$.post(url, { filePath: fileItem.key }, function (data) {  $(spreadsheetSelector).html(data);  });
 		};
 	```
-4) In Controller, get a corresponding Excel document from the file system and return it as Model:
-```cs
- public IActionResult OpenDocInSpreadsheet(string filePath) {
-            return PartialView("SpreadsheetPartial", GetDocumentModel(filePath));
-        }
-```
-5) Open this object in the control with the [Spreadsheet.Open](https://docs.devexpress.com/AspNetCore/DevExpress.AspNetCore.Spreadsheet.SpreadsheetBuilder.Open.overloads) method:
+
+1. Obtain the Excel document from the file system in the _Controller_ and return it as a model:
+
+	```cs
+	return PartialView("SpreadsheetPartial", new DocumentModel {
+		DocumentID = relativePath,
+		FileBytes = System.IO.File.ReadAllBytes(path)
+	});
+	```
+
+1. Call the [Spreadsheet.Open](https://docs.devexpress.com/AspNetCore/DevExpress.AspNetCore.Spreadsheet.SpreadsheetBuilder.Open.overloads) method to open the Excel document:
+
 	```cs
 	@(Html.DevExpress()
 	.Spreadsheet("spreadsheet")
@@ -92,14 +112,17 @@ This section describes how to open the most popular file types in different cont
 	```
 
 ### Diagram
-1) Create a separate Partial View with your Diagram: [DiagramPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/DiagramPartial.cshtml).
-2) Render this Partial View inside NamedTemplate:
+
+1. Create a [Partial View](./CS/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml) that contains a Diagram. Render the Partial View within a `NamedTemplate`:
+
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("diagram")) {
 		await Html.RenderPartialAsync("DiagramPartial");
 	}
 	```
-3) Use the **fileSystemProvider.getItemsContent** method to get the selected file content and open it in Diagram using the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method:
+
+1. Call the **fileSystemProvider.getItemsContent** method to obtain selected file content. Call the [import](https://js.devexpress.com/Documentation/ApiReference/UI_Widgets/dxDiagram/Methods/#importdata_updateExistingItemsOnly) method to load that content into the Diagram:
+
 	```js
 	FileLoader.loadDiagram = function loadDiagram(diagramSelector, fileManager, fileItem) {
 			fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
@@ -111,13 +134,17 @@ This section describes how to open the most popular file types in different cont
 	```
 
 ### Image
-1) Add the IMG tag to the corresponding NamedTemplate:
+
+1. Add an `<img>` tag to the `NamedTemplate`:
+
 	```cs
 	@using (Html.DevExtreme().NamedTemplate("image")) {
 		<img id="imageViewer" />
 	}
 	```
-2) Get the image content with the **fileSystemProvider.getItemsContent** method. Convert the result to the base64 string and set the "src" attribute value to this string:
+
+1. Call the **fileSystemProvider.getItemsContent** method to obtain image content. Convert the result to a `base64` string and assign this string to the `src` attribute:
+
 	```js
 	FileLoader.loadImage = function loadImage(imageSelector, fileManager, fileItem) {
 			fileManager.option("fileSystemProvider").getItemsContent([fileItem]).done(function (arrayBuffer) {
@@ -130,13 +157,14 @@ This section describes how to open the most popular file types in different cont
 
 ## Files to Review
 
-* [Index.cshtml](./CS/FileManagerOpenDocuments/Views/Home/Index.cshtml)
-* [RichEditPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/RichEditPartial.cshtml)
-* [SpreadsheetPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/SpreadsheetPartial.cshtml)
-* [DiagramPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Home/DiagramPartial.cshtml)
+* [Index.cshtml](./CS/FileManagerOpenDocuments/Pages/Index.cshtml)
+* [RichEditPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/RichEditPartial.cshtml)
+* [SpreadsheetPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/SpreadsheetPartial.cshtml)
+* [DiagramPartial.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/DiagramPartial.cshtml)
 * [FileManagerApiController.cs](./CS/FileManagerOpenDocuments/Controllers/FileManagerApiController.cs)
 * [HomeController.cs](./CS/FileManagerOpenDocuments/Controllers/HomeController.cs)
-* [_Layout.cshtml](./CS/FileManagerOpenDocuments/Views/Shared/_Layout.cshtml)
+* [Program.cs](./CS/FileManagerOpenDocuments/Program.cs)
+* [_Layout.cshtml](./CS/FileManagerOpenDocuments/Pages/Shared/_Layout.cshtml)
 <!-- feedback -->
 ## Does This Example Address Your Development Requirements/Objectives?
 

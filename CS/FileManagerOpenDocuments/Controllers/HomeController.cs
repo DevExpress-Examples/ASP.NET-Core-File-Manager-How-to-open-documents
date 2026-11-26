@@ -1,50 +1,42 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
-using System.Linq;
-using System.Threading.Tasks;
 using DevExpress.AspNetCore.Spreadsheet;
-using Microsoft.AspNetCore.Hosting;
+using FileManagerOpenDocuments.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Logging;
-using T845880.Models;
 
-namespace T845880.Controllers {
+namespace FileManagerOpenDocuments.Controllers {
     public class HomeController : Controller {
-        public IWebHostEnvironment HostingEnvironment { get; }
-        public string RootPath { get; set; }
+        private readonly string rootPath;
+
         public HomeController(IWebHostEnvironment hostingEnvironment) {
-            HostingEnvironment = hostingEnvironment;
-            RootPath = Path.Combine(HostingEnvironment.WebRootPath, "SampleDocs");
-        }
-        public IActionResult Index() {
-            return View();
+            rootPath = Path.Combine(hostingEnvironment.WebRootPath, "SampleDocs");
         }
 
-        [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
-        public IActionResult Error() {
-            return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
-        }
+        [HttpPost]
         public IActionResult OpenDocInSpreadsheet(string filePath) {
-            return PartialView("SpreadsheetPartial", GetDocumentModel(filePath));
+            if (string.IsNullOrWhiteSpace(filePath)) {
+                return BadRequest("A document path is required.");
+            }
+
+            string path = Path.GetFullPath(Path.Combine(rootPath, filePath));
+            string relativePath = Path.GetRelativePath(rootPath, path);
+            if (Path.IsPathRooted(relativePath) || relativePath == ".." ||
+                relativePath.StartsWith($"..{Path.DirectorySeparatorChar}") ||
+                !string.Equals(Path.GetExtension(path), ".xlsx", StringComparison.OrdinalIgnoreCase)) {
+                return BadRequest("Select an XLSX document in SampleDocs.");
+            }
+            if (!System.IO.File.Exists(path)) {
+                return NotFound("The document was not found.");
+            }
+
+            return PartialView("SpreadsheetPartial", new DocumentModel {
+                DocumentID = relativePath,
+                FileBytes = System.IO.File.ReadAllBytes(path)
+            });
         }
+
         [HttpPost]
         [HttpGet]
         public IActionResult DxDocRequest() {
             return SpreadsheetRequestProcessor.GetResponse(HttpContext);
         }
-
-        private DocumentModel GetDocumentModel(string filePath) {
-            string path = Path.Combine(RootPath, filePath);
-            byte[] fileBytes = System.IO.File.ReadAllBytes(path);
-            DocumentModel model = new DocumentModel() { DocumentID = Path.GetFileName(path), FileBytes = fileBytes };
-            return model;
-        }
-    }
-
-    public class DocumentModel {
-        public string DocumentID { get; set; }
-        public byte[] FileBytes { get; set; }
     }
 }
